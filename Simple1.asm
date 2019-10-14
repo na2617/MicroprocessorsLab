@@ -21,8 +21,15 @@ myTable data	"This is just some data"
 	constant 	counter=0x10	; Address of counter variable
 	; ******* Main programme *********************
 	
-start	movlw	0x0F	    ;data trying to store
+start	
+	banksel PADCFG1 ; PADCFG1 is not in Access Bank!!
+	bsf	PADCFG1, REPU, BANKED ; PortE pull-ups on
+	movlb	0x00 ; set BSR back to Bank 0
+	setf	TRISE ; Tri-state PortE
+	
+	movlw	0x0F	    ;data trying to store
 	call	write
+	call	read
 	goto	start
 	
 write	movwf	LATE
@@ -37,9 +44,10 @@ write	movwf	LATE
 	return
 	
 	
-read	movlw	0x10
+read	movlw	0x2
 	movwf	LATD
 	clrf	TRISC
-	movff	LATE, TRISC
+	movff	PORTE, PORTC
+	return
 	
 	end
