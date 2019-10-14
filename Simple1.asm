@@ -9,10 +9,10 @@
 	; ******* Programme FLASH read Setup Code ****  
 setup	bcf	EECON1, CFGS	; point to Flash program memory  
 	bsf	EECON1, EEPGD 	; access Flash program memory
-	clrf TRISD
-	movlw 0x03
-	movwf LATD
-	clrf TRISE
+	clrf	TRISD
+	movlw	0x03
+	movwf	LATD
+	clrf	TRISE
 	goto	start
 
 ; ******* My data and where to put it in RAM *
@@ -21,18 +21,25 @@ myTable data	"This is just some data"
 	constant 	counter=0x10	; Address of counter variable
 	; ******* Main programme *********************
 	
-start	movlw 0x0F	    ;data trying to store
-	call write
-	goto start
+start	movlw	0x0F	    ;data trying to store
+	call	write
+	goto	start
 	
-write	movwf LATE
-	clrf TRISE
-	movlw 0x01
-	movwf LATD
+write	movwf	LATE
+	clrf	TRISE
+	movlw	0x01
+	movwf	LATD
 	nop
 	nop
-	movlw 0x03
-	movwf LATD
-	setf TRISE
+	movlw	0x03
+	movwf	LATD
+	setf	TRISE
 	return
+	
+	
+read	movlw	0x10
+	movwf	LATD
+	clrf	TRISC
+	movff	LATE, TRISC
+	
 	end
