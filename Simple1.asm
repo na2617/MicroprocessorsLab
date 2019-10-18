@@ -9,13 +9,15 @@
 start	
 	call SPI_MasterInit
 	clrf TRISE
-	movlw 0x03
+	movlw 0xF0
 	movwf PORTE
 	call SPI_MasterTransmit
 	nop
 	nop
 	nop
-    
+	nop
+	nop
+	goto finish
 SPI_MasterInit ; Set Clock edge to negative
 	
 	bcf SSP2STAT, CKE
@@ -36,5 +38,6 @@ Wait_Transmit ; Wait for transmission to complete
 	bcf PIR2, SSP2IF ; clear interrupt flag
 	return
     
+finish
 	end
     
