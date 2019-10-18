@@ -8,8 +8,13 @@
 
 start	
 	call SPI_MasterInit
-	movlw 0x05
+	clrf TRISE
+	movlw 0x03
+	movwf PORTE
 	call SPI_MasterTransmit
+	nop
+	nop
+	nop
     
 SPI_MasterInit ; Set Clock edge to negative
 	
