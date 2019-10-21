@@ -9,7 +9,7 @@ LCD_cnt_ms  res 1   ; reserve 1 byte for ms counter
 LCD_tmp	    res 1   ; reserve 1 byte for temporary use
 LCD_counter res 1   ; reserve 1 byte for counting through nessage
 LCD_counter2 res 1   ; reserve 1 byte for counting through nessage
-LCD_len		res 1
+LCD_len	    res 1
 	constant    LCD_E=5	; LCD enable bit
     	constant    LCD_RS=4	; LCD register select bit
 
@@ -50,27 +50,18 @@ LCD_Setup
 LCD_Write_Message	    ; Message stored at FSR2, length stored in W
 	movwf	LCD_len
 	movlw	0x10
-	cpfsgt	LCD_len
-	bra	LCD_Loop_message0  ; message le 16
-	bra	LCD_Loop_message    ; message gt 16
-LCD_Loop_message0   ;LT 16
-	movwf	LCD_counter
-	movf    POSTINC2, W
-	call    LCD_Send_Byte_D
-	decfsz  LCD_counter
-	bra	LCD_Loop_message0
-	return
-LCD_Loop_message    ;GT 16
-	movff	LCD_len, LCD_counter
+	movwf   LCD_counter
+	movwf	LCD_counter2
+LCD_Loop_message
 	movf    POSTINC2, W
 	call    LCD_Send_Byte_D
 	decfsz  LCD_counter
 	bra	LCD_Loop_message
 	movlw	b'11000000'
 	call	LCD_Send_Byte_I
+
+	call	LCD_delay_ms
 LCD_Loop_message2
-	subwf	LCD_len
-	movff	LCD_len, LCD_counter2
 	movf    POSTINC2, W
 	call    LCD_Send_Byte_D
 	decfsz  LCD_counter2
