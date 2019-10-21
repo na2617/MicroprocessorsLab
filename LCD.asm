@@ -1,6 +1,6 @@
 #include p18f87k22.inc
 
-    global  LCD_Setup, LCD_Write_Message
+    global  LCD_Setup, LCD_Write_Message, LCD_Clear
 
 acs0    udata_acs   ; named variables in access ram
 LCD_cnt_l   res 1   ; reserve 1 byte for variable LCD_cnt_l
@@ -8,6 +8,7 @@ LCD_cnt_h   res 1   ; reserve 1 byte for variable LCD_cnt_h
 LCD_cnt_ms  res 1   ; reserve 1 byte for ms counter
 LCD_tmp	    res 1   ; reserve 1 byte for temporary use
 LCD_counter res 1   ; reserve 1 byte for counting through nessage
+LCD_counter2 res 1   ; reserve 1 byte for counting through nessage
 
 	constant    LCD_E=5	; LCD enable bit
     	constant    LCD_RS=4	; LCD register select bit
@@ -45,14 +46,29 @@ LCD_Setup
 	movlw	.10		; wait 40us
 	call	LCD_delay_x4us
 	return
-
+	
 LCD_Write_Message	    ; Message stored at FSR2, length stored in W
+	movlw	0x0F
 	movwf   LCD_counter
+	movwf	LCD_counter2
 LCD_Loop_message
 	movf    POSTINC2, W
 	call    LCD_Send_Byte_D
 	decfsz  LCD_counter
 	bra	LCD_Loop_message
+	movlw	b'11000000'
+	call	LCD_Send_Byte_I
+LCD_Loop_message2
+	movf    POSTINC2, W
+	call    LCD_Send_Byte_D
+	decfsz  LCD_counter2
+	bra	LCD_Loop_message2
+	return
+	
+	
+LCD_Clear
+	movlw	b'00000001'	; display clear
+	call	LCD_Send_Byte_I
 	return
 
 LCD_Send_Byte_I		    ; Transmits byte stored in W to instruction reg
