@@ -14,9 +14,9 @@ rst	code	0    ; reset vector
 	goto	setup
 
 pdata	code    ; a section of programme memory for storing data
-	; ******* myTable, da..................................................ta in programme memory, and its length *****
-myTable data	    "Get the line to work hopefully \n"
-	constant    myTable_l=.100	; length of data
+	; ******* myTable, da.................................................ta in programme memory, and its length *****
+myTable data	    "One Two\n"
+	constant    myTable_l=.7	; length of data
 	
 main	code
 	; ******* Programme FLASH read Setup Code ***********************
