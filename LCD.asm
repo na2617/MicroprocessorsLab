@@ -1,6 +1,6 @@
 #include p18f87k22.inc
 
-    global  LCD_Setup, LCD_Write_Message, LCD_Clear
+    global  LCD_Setup, LCD_Write_Message, LCD_Write_Hex, LCD_Clear
 
 acs0    udata_acs   ; named variables in access ram
 LCD_cnt_l   res 1   ; reserve 1 byte for variable LCD_cnt_l
@@ -8,6 +8,10 @@ LCD_cnt_h   res 1   ; reserve 1 byte for variable LCD_cnt_h
 LCD_cnt_ms  res 1   ; reserve 1 byte for ms counter
 LCD_tmp	    res 1   ; reserve 1 byte for temporary use
 LCD_counter res 1   ; reserve 1 byte for counting through nessage
+
+acs_ovr	access_ovr
+LCD_hex_tmp res 1   ; reserve 1 byte for variable LCD_hex_tmp	
+
 LCD_counter2 res 1   ; reserve 1 byte for counting through nessage
 LCD_len	    res 1
 	constant    LCD_E=5	; LCD enable bit
@@ -32,7 +36,7 @@ LCD_Setup
 	movlw	b'00101000'	; repeat, 2 line display 5x8 dot characters
 	call	LCD_Send_Byte_I
 	movlw	.10		; wait 40us
-	call	LCD_delay_x4us
+	call	LCD_delay_x4us0
 	movlw	b'00001111'	; display on, cursor on, blinking on
 	call	LCD_Send_Byte_I
 	movlw	.10		; wait 40us
@@ -45,6 +49,26 @@ LCD_Setup
 	call	LCD_Send_Byte_I
 	movlw	.10		; wait 40us
 	call	LCD_delay_x4us
+	return
+
+LCD_Write_Dec
+	
+	return
+	
+LCD_Write_Hex	    ; Writes byte stored in W as hex
+	movwf	LCD_hex_tmp
+	swapf	LCD_hex_tmp,W	; high nibble first
+	call	LCD_Hex_Nib
+	movf	LCD_hex_tmp,W	; then low nibble
+LCD_Hex_Nib	    ; writes low nibble as hex character
+	andlw	0x0F
+	movwf	LCD_tmp
+	movlw	0x0A
+	cpfslt	LCD_tmp
+	addlw	0x07	; number is greater than 9 
+	addlw	0x26
+	addwf	LCD_tmp,W
+	call	LCD_Send_Byte_D ; write out ascii
 	return
 	
 LCD_Write_Message	    ; Message stored at FSR2, length stored in W
