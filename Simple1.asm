@@ -1,7 +1,7 @@
 	#include p18f87k22.inc
 
 	extern	UART_Setup, UART_Transmit_Message   ; external UART subroutines
-	extern  LCD_Setup, LCD_Write_Message	    ; external LCD subroutines
+	extern  LCD_Setup, LCD_Write_Message, LCD_Write_Dec	    ; external LCD subroutines
 	extern	LCD_Write_Hex, LCD_Clear	    ; external LCD subroutines
 	extern  ADC_Setup, ADC_Read		    ; external ADC routines
 	extern	UART_Setup, UART_Transmit_Message  ; external UART subroutines
@@ -54,6 +54,8 @@ loop 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	movlw	myTable_l	; output message to UART
 	lfsr	FSR2, myArray
 	call	UART_Transmit_Message
+	clrf	TRISD
+	clrf	TRISJ
 	
 keys
 	call	KEY_Read
@@ -64,9 +66,12 @@ keys
 measure_loop
 	call	ADC_Read
 	movf	ADRESH,W
+	movff	ADRESH, LATD
 	call	LCD_Write_Hex
 	movf	ADRESL,W
+	movff	ADRESL, LATJ
 	call	LCD_Write_Hex
+	call	LCD_Write_Dec
 	; goto	measure_loop		; goto current line in code
 	goto	keys
 

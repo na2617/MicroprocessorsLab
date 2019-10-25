@@ -1,6 +1,6 @@
 #include p18f87k22.inc
 
-    global  LCD_Setup, LCD_Write_Message, LCD_Write_Hex, LCD_Clear
+    global  LCD_Setup, LCD_Write_Message, LCD_Write_Hex, LCD_Clear, LCD_Write_Dec
 
 acs0    udata_acs   ; named variables in access ram
 LCD_cnt_l   res 1   ; reserve 1 byte for variable LCD_cnt_l
@@ -8,7 +8,7 @@ LCD_cnt_h   res 1   ; reserve 1 byte for variable LCD_cnt_h
 LCD_cnt_ms  res 1   ; reserve 1 byte for ms counter
 LCD_tmp	    res 1   ; reserve 1 byte for temporary use
 LCD_counter res 1   ; reserve 1 byte for counting through nessage
-
+LCD_k	    res 2
 acs_ovr	access_ovr
 LCD_hex_tmp res 1   ; reserve 1 byte for variable LCD_hex_tmp	
 
@@ -36,7 +36,7 @@ LCD_Setup
 	movlw	b'00101000'	; repeat, 2 line display 5x8 dot characters
 	call	LCD_Send_Byte_I
 	movlw	.10		; wait 40us
-	call	LCD_delay_x4us0
+	call	LCD_delay_x4us
 	movlw	b'00001111'	; display on, cursor on, blinking on
 	call	LCD_Send_Byte_I
 	movlw	.10		; wait 40us
@@ -52,6 +52,39 @@ LCD_Setup
 	return
 
 LCD_Write_Dec
+	clrf	0x10
+	clrf	0x11
+	clrf	0x20
+	clrf	0x21
+	clrf	0x30
+	clrf	0x31
+	clrf	0x40
+	clrf	0x41
+	clrf	0x50
+	clrf	0x51
+	clrf	0x60
+	clrf	0x61
+	movlw	0x41
+	movwf	0x10
+	movlw	0x8A
+	movwf	0x11		;moving constant 418a to 0x10, 0x11 location
+	movff	ADRESH, 0x20
+	movff	ADRESL, 0x21	;moving voltage in hex to 0x20, 0x21 location
+	movf	0x21, W
+	mulwf	0x11
+	movff	PRODL, 0x31
+	movff	PRODH, 0x30
+	mulwf	0x10
+	movff	PRODL, 0x41
+	movff	PRODH, 0x40
+	movf	0x20, W
+	mulwf	0x11
+	movff	PRODL, 0x51
+	movff	PRODH, 0x50
+	mulwf	0x10
+	movff	PRODL, 0x61
+	movff	PRODH, 0x60
+		
 	
 	return
 	
@@ -68,7 +101,7 @@ LCD_Hex_Nib	    ; writes low nibble as hex character
 	addlw	0x07	; number is greater than 9 
 	addlw	0x26
 	addwf	LCD_tmp,W
-	call	LCD_Send_Byte_D ; write out ascii
+ 	call	LCD_Send_Byte_D ; write out ascii
 	return
 	
 LCD_Write_Message	    ; Message stored at FSR2, length stored in W
