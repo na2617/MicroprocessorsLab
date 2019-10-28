@@ -70,12 +70,12 @@ LCD_Write_Dec
 	movwf	0x10
 	movlw	0x8A
 	movwf	0x11		;moving constant 0x418a to 0x10, 0x11 location
-	;movff	ADRESH, 0x20
-	;movff	ADRESL, 0x21	;moving voltage in hex to 0x20, 0x21 location
-	movlw	0x04		;using fixed values of voltage for testing
-	movwf	0x20
-	movlw	0xD2
-	movwf	0x21
+	movff	ADRESH, 0x20
+	movff	ADRESL, 0x21	;moving voltage in hex to 0x20, 0x21 location
+	;movlw	0x04		;using fixed values of voltage for testing
+	;movwf	0x20
+	;movlw	0xD2
+	;movwf	0x21
 	
 	movf	0x21, W
 	mulwf	0x11
@@ -106,6 +106,7 @@ LCD_Write_Dec
 	movf	0x10, W
 	andlw	0x0F
 	movwf	0x33
+	
 	;second multiplication
 	call	LCD_Multi
 	movf	0x10, W
