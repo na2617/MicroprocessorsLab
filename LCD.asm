@@ -61,8 +61,8 @@ LCD_Write_Dec
 	clrf	0x31
 	clrf	0x40
 	clrf	0x41
-	clrf	0x60
-	clrf	0x71
+	clrf	0x55
+	clrf	0x56
 	clrf	0x50
 	clrf	0x51
 	
@@ -70,33 +70,81 @@ LCD_Write_Dec
 	movwf	0x10
 	movlw	0x8A
 	movwf	0x11		;moving constant 0x418a to 0x10, 0x11 location
-	movff	ADRESH, 0x20
-	movff	ADRESL, 0x21	;moving voltage in hex to 0x20, 0x21 location
+	;movff	ADRESH, 0x20
+	;movff	ADRESL, 0x21	;moving voltage in hex to 0x20, 0x21 location
+	movlw	0x04		;using fixed values of voltage for testing
+	movwf	0x20
+	movlw	0xD2
+	movwf	0x21
+	
 	movf	0x21, W
 	mulwf	0x11
 	movff	PRODL, 0x31
 	movff	PRODH, 0x30
 	mulwf	0x10
-	movff	PRODL, 0x41
+	movff	PRODL, 0x41	;multiplying and storing each byte separately
 	movff	PRODH, 0x40
 	movf	0x20, W
 	mulwf	0x11
 	movff	PRODL, 0x51
 	movff	PRODH, 0x50
 	mulwf	0x10
-	movff	PRODL, 0x61
-	movff	PRODH, 0x60
+	movff	PRODL, 0x56
+	movff	PRODH, 0x55
 	movff	0x31, 0x13
+	
+	clrf	STATUS
 	movf	0x30, W
-	addwf	0x41, 0 
-	addwf	0x51, 0 
+	addwfc	0x41, W		    ;adding and storing results in conescutive FRs
+	addwfc	0x51, W 
 	movwf	0x12
 	movf	0x40, W
-	addwf	0x50, 0
-	addwf	0x61, 0
+	addwfc	0x50, W
+	addwfc	0x56, W
 	movwf	0x11
-	movff	0x60, 0x10
+	movff	0x55, 0x10
+	movf	0x10, W
+	andlw	0x0F
+	movwf	0x33
+	;second multiplication
+	call	LCD_Multi
+	movf	0x10, W
+	andlw	0x0F
+	movwf	0x34
+	;third
+	call	LCD_Multi
+	movf	0x10, W
+	andlw	0x0F
+	movwf	0x35
+	;fourth
+	call	LCD_Multi
+	movf	0x10, W
+	andlw	0x0F
+	movwf	0x36
 	
+	return
+	
+LCD_Multi
+	movlw	0x0A
+	mulwf	0x13
+	movff	PRODL, 0x31
+	movff	PRODH, 0x30
+	mulwf	0x12
+	movff	PRODL, 0x41	;multiplying and storing each byte separately
+	movff	PRODH, 0x40
+	mulwf	0x11
+	movff	PRODL, 0x51	
+	movff	PRODH, 0x50
+	movff	0x31, 0x13
+	
+	clrf	STATUS
+	movf	0x30, W
+	addwfc	0x41, W		    ;adding and storing results in conescutive FRs 
+	movwf	0x12
+	movf	0x40, W
+	addwfc	0x51, W
+	movwf	0x11
+	movff	0x50, 0x10
 
 	return
 	
